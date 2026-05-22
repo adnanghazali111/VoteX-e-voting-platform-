@@ -41,16 +41,16 @@ router.post('/login', async (req, res) => {
     }
 
     try {
-        let [admins] = await db.query('SELECT * FROM admins WHERE username = ? AND status = "active"', [safeName]);
+        let [admins] = await db.query('SELECT * FROM admins WHERE username = ? AND status = \'active\'', [safeName]);
 
         if (admins.length === 0) {
             const emailName = safeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'organizer';
             const email = `${emailName}-${Date.now()}@votex.local`;
             await db.query(
-                'INSERT INTO admins (username, email, password, role, status) VALUES (?, ?, "", "organizer", "active")',
+                'INSERT INTO admins (username, email, password, role, status) VALUES (?, ?, "", \'organizer\', \'active\')',
                 [safeName, email]
             );
-            [admins] = await db.query('SELECT * FROM admins WHERE username = ? AND status = "active"', [safeName]);
+            [admins] = await db.query('SELECT * FROM admins WHERE username = ? AND status = \'active\'', [safeName]);
         }
 
         const admin = admins[0];
@@ -124,12 +124,12 @@ router.get('/auth/google/callback', async (req, res) => {
 
         if (admins.length === 0) {
             await db.query(
-                'INSERT INTO admins (username, email, password, role, status) VALUES (?, ?, "", "organizer", "active")',
+                'INSERT INTO admins (username, email, password, role, status) VALUES (?, ?, "", \'organizer\', \'active\')',
                 [organizerName, organizerEmail]
             );
             [admins] = await db.query('SELECT * FROM admins WHERE email = ? LIMIT 1', [organizerEmail]);
         } else {
-            await db.query('UPDATE admins SET username = ?, email = ?, status = "active" WHERE id = ?', [organizerName, organizerEmail, admins[0].id]);
+            await db.query('UPDATE admins SET username = ?, email = ?, status = \'active\' WHERE id = ?', [organizerName, organizerEmail, admins[0].id]);
             [admins] = await db.query('SELECT * FROM admins WHERE id = ? LIMIT 1', [admins[0].id]);
         }
 

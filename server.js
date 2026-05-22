@@ -59,11 +59,15 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '127.0.0.1';
 
-const server = app.listen(PORT, HOST, () => {
-    console.log(`Server started at http://${HOST}:${PORT}`);
-});
+if (require.main === module) {
+    const server = app.listen(PORT, HOST, () => {
+        console.log(`Server started at http://${HOST}:${PORT}`);
+    });
 
-server.on('error', (err) => {
-    console.error(`Failed to start server: ${err.message}`);
-    process.exit(1);
-});
+    server.on('error', (err) => {
+        console.error(`Failed to start server: ${err.message}`);
+        process.exit(1);
+    });
+}
+
+module.exports = app;

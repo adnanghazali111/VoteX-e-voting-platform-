@@ -316,7 +316,7 @@ exports.terminateRoom = async (req, res) => {
 exports.deleteRoom = async (req, res) => {
     const roomId = req.params.id;
     try {
-        const [result] = await db.query('DELETE FROM rooms WHERE id = ? AND admin_id = ? AND status IN ("published", "closed")', 
+        const [result] = await db.query('DELETE FROM rooms WHERE id = ? AND admin_id = ? AND status IN (\'published\', \'closed\')', 
             [roomId, req.session.admin.id]);
 
         if (result.affectedRows === 0) {

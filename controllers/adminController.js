@@ -23,7 +23,7 @@ exports.addVoter = async (req, res) => {
     try {
         const hashedPin = await bcrypt.hash(voting_pin, 10);
 
-        await db.query('INSERT INTO users (voter_id, name, email, password, status) VALUES (?, ?, ?, ?, "approved")', 
+        await db.query('INSERT INTO users (voter_id, name, email, password, status) VALUES (?, ?, ?, ?, \'approved\')', 
             [voter_id, name, email, hashedPin]);
         
         req.flash('success_msg', 'Voter added successfully');
@@ -39,7 +39,7 @@ exports.addVoter = async (req, res) => {
 exports.approveVoter = async (req, res) => {
     const userId = req.params.id;
     try {
-        await db.query('UPDATE users SET status = "approved" WHERE id = ?', [userId]);
+        await db.query('UPDATE users SET status = \'approved\' WHERE id = ?', [userId]);
         req.flash('success_msg', 'Voter approved');
         res.redirect('/admin/voters');
     } catch (err) {

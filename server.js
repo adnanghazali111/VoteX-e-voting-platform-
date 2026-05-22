@@ -25,13 +25,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 // To ensure uploaded files are served correctly
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
-// Express Session Middleware
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'supersecretvotexsessionkey',
-    resave: false,
-    saveUninitialized: true
-}));
+// Express Session Middleware with MySQL Store for Vercel
+const MySQLStore = require('express-mysql-session')(session);
+const sessionStore = new MySQLStore({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'votex'
+});
 
+app.use(session({
+    key: 'votex_session',
+    secret: process.env.SESSION_SECRET || 'supersecretvotexsessionkey',
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false
+}));
 // Connect Flash Middleware
 app.use(flash());
 

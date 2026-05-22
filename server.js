@@ -27,12 +27,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Express Session Middleware with MySQL Store for Vercel
 const MySQLStore = require('express-mysql-session')(session);
-const sessionStore = new MySQLStore({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'votex'
-});
+const sessionStore = new MySQLStore({}, db);
 
 app.use(session({
     key: 'votex_session',

@@ -58,7 +58,7 @@ router.post('/login', async (req, res) => {
         res.redirect('/admin/dashboard');
     } catch (err) {
         console.error(err);
-        req.flash('error_msg', 'An error occurred during login');
+        req.flash('error_msg', 'DB Error: ' + (err.message || 'Unknown error'));
         res.redirect('/admin/login');
     }
 });

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f8ff; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .login-card { width: 100%; max-width: 400px; padding: 2rem; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); background: white; border-top: 5px solid #0d6efd; }
+    </style>
+</head>
+<body>
+    <%- include('../partials/home-logo') %>
+
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary">Join Election</h2>
+            <p class="text-muted">Enter the room code, name, and voting PIN</p>
+        </div>
+
+        <% if(error_msg && error_msg.length > 0){ %>
+            <div class="alert alert-danger"><%= error_msg %></div>
+        <% } %>
+
+        <% if (googleUser) { %>
+            <div class="alert alert-success py-2 d-flex justify-content-between align-items-center">
+                <span class="small">Signed in as <strong><%= googleUser.name || googleUser.email %></strong></span>
+                <a class="small" href="/auth/google/logout?code=<%= encodeURIComponent(code || '') %>">Remove</a>
+            </div>
+        <% } else { %>
+            <a href="/auth/google?code=<%= encodeURIComponent(code || '') %>" class="btn btn-outline-dark w-100 mb-3">
+                Continue with Google <span class="text-muted">(optional)</span>
+            </a>
+        <% } %>
+
+        <form action="/voter/join" method="POST">
+            <div class="mb-3">
+                <label for="room_code" class="form-label fw-bold">Room Code</label>
+                <input type="text" class="form-control form-control-lg text-center fw-bold" id="room_code" name="room_code" required aria-required="true" placeholder="e.g. A1B2C3" value="<%= code %>" <%= code ? 'readonly' : '' %>>
+            </div>
+            <hr>
+            <div class="mb-3">
+                <label for="voter_name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="voter_name" name="voter_name" required placeholder="Enter your name" autocomplete="name" value="<%= googleUser && googleUser.name ? googleUser.name : '' %>">
+            </div>
+            <div class="mb-3">
+                <label for="voting_pin" class="form-label">Voting PIN</label>
+                <input type="password" class="form-control" id="voting_pin" name="voting_pin" required placeholder="Enter the voting PIN" autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-primary w-100 fw-bold mt-2">Join Room & Vote</button>
+        </form>
+        
+        <div class="text-center mt-3">
+            <a href="/" class="text-decoration-none">Back to Home</a>
+        </div>
+    </div>
+
+</body>
+</html>

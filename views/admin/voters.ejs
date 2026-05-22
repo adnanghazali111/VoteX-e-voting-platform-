@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { min-height: 100vh; background-color: #343a40; color: white; padding-top: 20px; }
+        .sidebar a { color: #adb5bd; text-decoration: none; display: block; padding: 10px 20px; }
+        .sidebar a:hover, .sidebar a.active { background-color: #495057; color: white; }
+    </style>
+</head>
+<body>
+<div class="offcanvas offcanvas-start bg-dark text-white shadow" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="adminSidebar" style="width: 250px;">
+  <div class="offcanvas-header border-bottom border-secondary py-4 d-flex align-items-center justify-content-between">
+    <h5 class="offcanvas-title m-0"><a href="/" class="text-white text-decoration-none">VoteX Organizer</a></h5>
+    <button type="button" class="btn-close btn-close-white m-0" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body p-0 sidebar pt-3" style="min-height: auto; height: auto;">
+      <a href="/admin/dashboard">My Election Rooms</a>
+      <a href="/admin/voters" class="active">Global Voters</a>
+      <a href="/admin/logout" class="text-danger mt-5">Logout</a>
+  </div>
+</div>
+
+<div class="container-fluid" id="mainWrapper" style="transition: padding-left 0.3s ease;">
+    <div class="row">
+        <div class="col-12 p-4">
+            <button class="btn text-dark p-0 mb-4 d-inline-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar" aria-label="Open Sidebar Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+            </button>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Manage Voters</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVoterModal">+ Add Voter</button>
+            </div>
+
+            <%- include('../partials/messages') %>
+
+            <div class="table-responsive">
+                <table class="table table-bordered bg-white mt-4">
+                    <thead>
+                        <tr>
+                            <th>College ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% voters.forEach(voter => { %>
+                            <tr>
+                                <td><%= voter.voter_id %></td>
+                                <td><%= voter.name %></td>
+                                <td><%= voter.email %></td>
+                                <td><%= voter.status %></td>
+                                <td>
+                                    <% if(voter.status !== 'approved') { %>
+                                    <form action="/admin/voters/approve/<%= voter.id %>" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                    </form>
+                                    <% } %>
+                                    <form action="/admin/voters/delete/<%= voter.id %>" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                        <% if(voters.length === 0) { %>
+                            <tr><td colspan="5" class="text-center text-muted py-4">No voters found.</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addVoterModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Voter</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/admin/voters" method="POST">
+          <div class="modal-body">
+              <div class="mb-3">
+                  <label class="form-label">College ID</label>
+                  <input type="text" name="voter_id" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                  <label class="form-label">Name</label>
+                  <input type="text" name="name" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                  <label class="form-label">Email</label>
+                  <input type="email" name="email" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                  <label class="form-label">Voting PIN</label>
+                  <input type="password" name="voting_pin" class="form-control" required minlength="4">
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save Voter</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const adminSidebar = document.getElementById('adminSidebar');
+    const mainWrapper = document.getElementById('mainWrapper');
+    if (adminSidebar && mainWrapper) {
+        adminSidebar.addEventListener('show.bs.offcanvas', () => {
+            if (window.innerWidth >= 768) {
+                mainWrapper.style.paddingLeft = '250px';
+            }
+        });
+        adminSidebar.addEventListener('hide.bs.offcanvas', () => {
+            mainWrapper.style.paddingLeft = '0';
+        });
+    }
+</script>
+</body>
+</html>

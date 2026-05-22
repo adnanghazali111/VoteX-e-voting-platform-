@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { height: 100vh; background-color: #343a40; color: white; padding-top: 20px; }
+        .sidebar a { color: #adb5bd; text-decoration: none; display: block; padding: 10px 20px; }
+        .sidebar a:hover, .sidebar a.active { background-color: #495057; color: white; }
+        #roomAccessCard:fullscreen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            background: #ffffff;
+        }
+        #roomAccessCard:fullscreen .card-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        #roomAccessCard:fullscreen .card-body {
+            padding: 5rem 2rem 2rem;
+        }
+        #roomAccessCard:fullscreen h1 {
+            font-size: 6rem;
+        }
+        #roomAccessCard:fullscreen img {
+            max-width: 320px !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="offcanvas offcanvas-start bg-dark text-white shadow" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="adminSidebar" style="width: 250px;">
+  <div class="offcanvas-header border-bottom border-secondary py-4 d-flex align-items-center justify-content-between">
+    <h5 class="offcanvas-title m-0"><a href="/" class="text-white text-decoration-none">VoteX Organizer</a></h5>
+    <button type="button" class="btn-close btn-close-white m-0" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body p-0 sidebar pt-3" style="min-height: auto; height: auto;">
+      <a href="/admin/dashboard">My Election Rooms</a>
+      <a href="/admin/voters">Global Voters</a>
+      <a href="/admin/logout" class="text-danger mt-5">Logout</a>
+  </div>
+</div>
+
+<div class="container-fluid" id="mainWrapper" style="transition: padding-left 0.3s ease;">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-12 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button class="btn text-dark p-0 d-inline-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar" aria-label="Open Sidebar Menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                </button>
+                <a href="/admin/dashboard" class="btn btn-outline-secondary fw-bold shadow-sm">&larr; Back to Dashboard</a>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><%= room.title %> <span class="badge bg-<%= room.status === 'active' ? 'success' : 'secondary' %> fs-6 align-middle"><%= room.status %></span></h2>
+                <% if(room.status !== 'published') { %>
+                    <form action="/admin/rooms/<%= room.id %>/publish" method="POST">
+                        <button class="btn btn-warning fw-bold" onclick="return confirm('Publishing results will end the voting. Are you sure?')">Publish Results Publicly</button>
+                    </form>
+                <% } else { %>
+                    <a href="/results/<%= room.room_code %>" target="_blank" class="btn btn-info fw-bold text-white">View Public Results Page</a>
+                <% } %>
+            </div>
+            <p class="text-muted"><%= room.description %></p>
+            <hr>
+            
+            <% if(success_msg && success_msg.length > 0){ %>
+                <div class="alert alert-success"><%= success_msg %></div>
+            <% } %>
+            <% if(error_msg && error_msg.length > 0){ %>
+                <div class="alert alert-danger"><%= error_msg %></div>
+            <% } %>
+            <% if(terminationMessage) { %>
+                <div class="alert alert-danger fw-bold"><%= terminationMessage %></div>
+            <% } %>
+            <% if(positions.length > 1) { %>
+                <div class="alert alert-warning">
+                    This room has multiple existing positions from earlier data. New rooms and new additions now allow only one position per room.
+                </div>
+            <% } %>
+
+            <div class="row">
+                <!-- QR and Access Info -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm mb-4" id="roomAccessCard">
+                        <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                            <span>Room Access Info</span>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="roomAccessFullscreenBtn">Fullscreen</button>
+                        </div>
+                        <div class="card-body text-center">
+                            <h1 class="display-4 fw-bold text-primary"><%= room.room_code %></h1>
+                            <p class="text-muted">Voters enter this code to join</p>
+                            <img src="<%= qrCodeDataUrl %>" alt="QR Code" class="img-fluid border p-2 bg-light mb-3" style="max-width: 200px;">
+                            <br>
+                            <a href="<%= joinUrl %>" target="_blank" class="small"><%= joinUrl %></a>
+                            <form action="/admin/rooms/<%= room.id %>/voter-pin" method="POST" class="mt-4 text-start">
+                                <label class="form-label text-muted small">Set open voter PIN</label>
+                                <div class="input-group">
+                                    <input type="text" name="voter_pin" class="form-control" value="<%= room.voter_pin || '' %>" required minlength="4" maxlength="20" placeholder="e.g. 1234">
+                                    <button class="btn btn-primary" type="submit">Save</button>
+                                </div>
+                                <div class="form-text">This PIN appears on the voter join page.</div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                            <span>Voter Strength</span>
+                            <a href="/admin/rooms/<%= room.id %>/participating-voters" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center" title="Participating Voters" aria-label="Participating Voters">
+                                <i data-lucide="users-round" style="width: 18px; height: 18px;"></i>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <form action="/admin/rooms/<%= room.id %>/voter-strength" method="POST" class="mb-3">
+                                <label class="form-label text-muted small">Set expected voter strength</label>
+                                <div class="input-group">
+                                    <input type="number" name="voter_strength" class="form-control" min="0" step="1" value="<%= voterStats.configuredStrength !== null ? voterStats.configuredStrength : voterStats.approvedVoters %>" required>
+                                    <button class="btn btn-primary" type="submit">Save</button>
+                                </div>
+                            </form>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Active strength</span>
+                                <span class="fw-bold fs-5"><%= voterStats.totalVoters %></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Voted in this room</span>
+                                <span class="fw-bold text-success"><%= voterStats.votedVoters %></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Total vote count</span>
+                                <span class="fw-bold <%= voterStats.isTerminated ? 'text-danger' : '' %>"><%= voterStats.totalVotes %></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Remaining</span>
+                                <span class="fw-bold text-primary"><%= voterStats.remainingVoters %></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Positions and Candidates -->
+                <div class="col-md-8">
+
+                    <!-- Ballot Issues -->
+                    <% if(typeof reports !== 'undefined') { %>
+                        <div class="card <%= reports.length > 0 ? 'border-danger' : 'border-success' %> mb-4 shadow-sm">
+                            <div class="card-header <%= reports.length > 0 ? 'bg-danger' : 'bg-success' %> text-white fw-bold d-flex justify-content-between align-items-center">
+                                <span>
+                                    <% if (reports.length > 0) { %>
+                                        <i data-lucide="alert-triangle" class="me-2" style="width: 18px; height: 18px;"></i> Ballot Issues (<%= reports.length %>)
+                                    <% } else { %>
+                                        <i data-lucide="check-circle" class="me-2" style="width: 18px; height: 18px;"></i> Ballot Issues (Resolved)
+                                    <% } %>
+                                </span>
+                            </div>
+                            <% if(reports.length > 0) { %>
+                                <ul class="list-group list-group-flush">
+                                    <% reports.forEach(report => { %>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong><%= report.voter_name %> (<%= report.college_id %>)</strong><br>
+                                                <span class="badge bg-warning text-dark mb-1"><%= report.issue_type %></span>
+                                                <p class="mb-0 text-muted small"><%= report.message || 'No additional details provided.' %></p>
+                                                <small class="text-muted" style="font-size: 0.75rem;"><%= new Date(report.created_at).toLocaleString() %></small>
+                                            </div>
+                                            <div class="d-flex flex-column gap-2 ms-3">
+                                                <form action="/admin/reports/<%= report.id %>/resolve" method="POST" class="m-0">
+                                                    <input type="hidden" name="room_id" value="<%= room.id %>">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success w-100" onclick="return confirm('Mark this report as resolved?')">Resolve</button>
+                                                </form>
+                                                <form action="/admin/reports/<%= report.id %>/reset-vote" method="POST" class="m-0">
+                                                    <input type="hidden" name="room_id" value="<%= room.id %>">
+                                                    <input type="hidden" name="voter_id" value="<%= report.voter_id %>">
+                                                    <button type="submit" class="btn btn-sm btn-danger w-100 fw-bold" onclick="return confirm('Delete this voter\'s votes in this room so they can vote again? This cannot be undone.')">Reset Vote</button>
+                                                </form>
+                                            </div>
+                                        </li>
+                                    <% }); %>
+                                </ul>
+                            <% } else { %>
+                                <div class="card-body text-center py-3">
+                                    <p class="text-muted mb-0">No active ballot issues reported. All clear!</p>
+                                </div>
+                            <% } %>
+                        </div>
+                    <% } %>
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                            Position
+                            <% if(positions.length === 0) { %>
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addPositionModal">+ Add Position</button>
+                            <% } else { %>
+                                <span class="badge bg-secondary">Position locked</span>
+                            <% } %>
+                        </div>
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush">
+                                <% positions.forEach(p => { %>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <%= p.title %> (Max Winners: <%= p.max_winners %>)
+                                    </li>
+                                <% }) %>
+                                <% if(positions.length === 0) { %>
+                                    <li class="list-group-item text-muted text-center py-3">No position defined yet. Add the single election position for this room.</li>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                            Candidates
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addCandidateModal">+ Add Candidate</button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-striped m-0">
+                                <thead>
+                                    <tr>
+                                        <th>Photo</th>
+                                        <th>Name</th>
+                                        <th>Position</th>
+                                        <th>Party</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% candidates.forEach(c => { %>
+                                        <tr>
+                                            <td><img src="<%= c.photo_url %>" width="40" height="40" class="rounded-circle border"></td>
+                                            <td class="align-middle"><%= c.name %></td>
+                                            <td class="align-middle"><%= c.position_title %></td>
+                                            <td class="align-middle">
+                                                <% if(c.party_symbol_url) { %>
+                                                    <img src="<%= c.party_symbol_url %>" width="20" height="20" class="me-1">
+                                                <% } %>
+                                                <%= c.party || 'Independent' %>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                    <% if(candidates.length === 0) { %>
+                                        <tr><td colspan="4" class="text-muted text-center py-3">No candidates added yet.</td></tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<!-- Add Position Modal -->
+<% if(positions.length === 0) { %>
+<div class="modal fade" id="addPositionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Position</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/admin/positions" method="POST">
+          <input type="hidden" name="room_id" value="<%= room.id %>">
+          <div class="modal-body">
+              <div class="mb-3">
+                  <label class="form-label">Position Title</label>
+                  <input type="text" name="title" class="form-control" required placeholder="e.g., President">
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save Position</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- Add Candidate Modal -->
+<div class="modal fade" id="addCandidateModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Candidate</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/admin/candidates" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="room_id" value="<%= room.id %>">
+          <div class="modal-body">
+
+              <div class="mb-3">
+                  <label class="form-label">Candidate Name</label>
+                  <input type="text" name="name" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                  <label class="form-label">Party Name (Optional)</label>
+                  <input type="text" name="party" class="form-control">
+              </div>
+              <div class="mb-3">
+                  <label class="form-label">Manifesto / Description</label>
+                  <textarea name="manifesto" class="form-control" rows="2"></textarea>
+              </div>
+              <div class="mb-3">
+                  <label class="form-label">Candidate Photo</label>
+                  <input type="file" name="photo" class="form-control" accept="image/*">
+              </div>
+              <div class="mb-3">
+                  <label class="form-label">Party Symbol Logo (Optional)</label>
+                  <input type="file" name="party_symbol" class="form-control" accept="image/*">
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save Candidate</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+    lucide.createIcons();
+
+    const roomAccessCard = document.getElementById('roomAccessCard');
+    const roomAccessFullscreenBtn = document.getElementById('roomAccessFullscreenBtn');
+
+    roomAccessFullscreenBtn.addEventListener('click', async () => {
+        if (!document.fullscreenElement) {
+            await roomAccessCard.requestFullscreen();
+        } else {
+            await document.exitFullscreen();
+        }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+        roomAccessFullscreenBtn.textContent = document.fullscreenElement ? 'Exit' : 'Fullscreen';
+    });
+
+    const adminSidebar = document.getElementById('adminSidebar');
+    const mainWrapper = document.getElementById('mainWrapper');
+    if (adminSidebar && mainWrapper) {
+        adminSidebar.addEventListener('show.bs.offcanvas', () => {
+            if (window.innerWidth >= 768) {
+                mainWrapper.style.paddingLeft = '250px';
+            }
+        });
+        adminSidebar.addEventListener('hide.bs.offcanvas', () => {
+            mainWrapper.style.paddingLeft = '0';
+        });
+    }
+</script>
+</body>
+</html>

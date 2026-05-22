@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title><%= title %></title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Montserrat Font -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            surface: '#08151c',
+            'surface-dim': '#08151c',
+            'surface-bright': '#2f3b43',
+            'surface-container-lowest': '#041017',
+            'surface-container-low': '#111d24',
+            primary: '#ffd700', // Signature Yellow/Gold from Design System
+            accent: '#0066ff' // Deep Blue for primary actions from reference
+          },
+          fontFamily: {
+            sans: ['Montserrat', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-layout">
+    body {
+      background-color: #08151c;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    /* Cinematic Background Overlay */
+    .hero-bg-overlay {
+      background-color: #ffffff;
+      background-image: linear-gradient(to bottom, rgba(8, 21, 28, 0.85), rgba(8, 21, 28, 0.95)), 
+                        url('/images/people_bg.jpg');
+      background-size: cover, 85% auto;
+      background-position: center, center;
+      background-repeat: no-repeat, no-repeat;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    /* Hand imagery positioning */
+    .hands-graphic {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 40%;
+      max-width: 500px;
+      opacity: 0.4;
+      pointer-events: none;
+      filter: grayscale(100%) brightness(0.8);
+      z-index: 0;
+    }
+
+    .nav-blur {
+      backdrop-filter: blur(10px);
+      background-color: rgba(8, 21, 28, 0.7);
+    }
+
+    .btn-gold {
+      background-color: #ffd700;
+      color: #08151c;
+      transition: all 0.3s ease;
+    }
+
+    .btn-gold:hover {
+      background-color: #e6c200;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="font-sans antialiased">
+<!-- BEGIN: MainHeader -->
+<header class="fixed top-0 left-0 w-full z-50 nav-blur border-b border-white/10" data-purpose="main-navigation">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<!-- Logo -->
+<div class="flex items-center" data-purpose="logo-container">
+<a class="text-2xl font-extrabold tracking-tighter text-white no-underline" href="/">
+          VOTE<span class="text-primary">X</span>
+</a>
+</div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center space-x-8" data-purpose="nav-links">
+<a class="text-sm font-medium hover:text-primary transition-colors no-underline text-white" href="#how-it-works">How it Works</a>
+<a class="text-sm font-medium hover:text-primary transition-colors no-underline text-white" href="#security">Security</a>
+<a class="text-sm font-medium hover:text-primary transition-colors no-underline text-white" href="#elections">Elections</a>
+<a class="text-sm font-medium hover:text-primary transition-colors no-underline text-white" href="#about">About</a>
+</nav>
+<!-- CTA Button -->
+<div class="flex items-center" data-purpose="header-cta">
+<a href="/auth/google" class="btn-gold px-6 py-2.5 rounded-full text-sm font-bold uppercase tracking-wider text-center no-underline inline-block">
+          Sign in with Google
+</a>
+</div>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: HeroSection -->
+<main class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+<!-- Background Elements -->
+<div class="hero-bg-overlay"></div>
+<div class="relative z-10 text-center px-4 max-w-4xl mx-auto" data-purpose="hero-content">
+<!-- Headline -->
+<h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight text-white leading-tight">
+        Welcome to <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-primary">VoteX</span>
+</h1>
+<!-- Subheadline -->
+<p class="text-xl md:text-2xl text-gray-300 mb-12 font-light max-w-2xl mx-auto leading-relaxed">
+        Secure, transparent, and easy online voting. Built for the modern democratic imperative.
+      </p>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row items-center justify-center gap-6" data-purpose="hero-actions">
+<!-- Primary Action -->
+<a href="/join" class="w-full sm:w-auto px-10 py-5 bg-accent hover:bg-blue-600 text-white rounded-full font-bold text-lg transition-all shadow-lg shadow-blue-500/20 transform hover:-translate-y-1 text-center no-underline inline-block">
+          Join Election Room
+</a>
+<!-- Secondary Action -->
+<a href="/admin/login" class="w-full sm:w-auto px-10 py-5 bg-white/5 hover:bg-white/10 text-white border border-white/20 rounded-full font-bold text-lg transition-all backdrop-blur-sm text-center no-underline inline-block">
+          Organizer Login
+</a>
+</div>
+</div>
+<!-- Scroll Indicator -->
+<div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-50" data-purpose="scroll-indicator">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 14l-7 7m0 0l-7-7m7 7V3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</main>
+<!-- END: HeroSection -->
+
+<!-- BEGIN: Details Sections -->
+<div class="bg-surface text-white">
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="py-24 px-6 border-t border-white/5 bg-surface-container-low">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-extrabold tracking-tight mb-4">How It Works</h2>
+        <p class="text-xl text-gray-400 font-light">Simple, intuitive, and democratic in just three steps.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white/5 p-8 rounded-2xl border border-white/10 backdrop-blur-sm hover:-translate-y-2 transition-transform duration-300">
+          <div class="w-14 h-14 bg-accent/20 text-accent rounded-full flex items-center justify-center text-2xl font-bold mb-6">1</div>
+          <h3 class="text-2xl font-bold mb-3">Create a Room</h3>
+          <p class="text-gray-400 leading-relaxed">Organizers can effortlessly create highly customized election rooms, set distinct positions, and add candidates.</p>
+        </div>
+        <div class="bg-white/5 p-8 rounded-2xl border border-white/10 backdrop-blur-sm hover:-translate-y-2 transition-transform duration-300">
+          <div class="w-14 h-14 bg-primary/20 text-primary rounded-full flex items-center justify-center text-2xl font-bold mb-6">2</div>
+          <h3 class="text-2xl font-bold mb-3">Share Access</h3>
+          <p class="text-gray-400 leading-relaxed">Secure your room with a unique PIN. Share the Room Code and PIN only with authorized voters to maintain integrity.</p>
+        </div>
+        <div class="bg-white/5 p-8 rounded-2xl border border-white/10 backdrop-blur-sm hover:-translate-y-2 transition-transform duration-300">
+          <div class="w-14 h-14 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center text-2xl font-bold mb-6">3</div>
+          <h3 class="text-2xl font-bold mb-3">Vote & Track</h3>
+          <p class="text-gray-400 leading-relaxed">Voters cast their ballots securely. Once voting strength is reached, the election automatically tallies and publishes results.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Security Section -->
+  <section id="security" class="py-24 px-6 border-t border-white/5 relative overflow-hidden">
+    <div class="absolute inset-0 bg-accent/5 backdrop-blur-3xl z-0"></div>
+    <div class="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row items-center gap-12">
+      <div class="md:w-1/2">
+        <h2 class="text-4xl font-extrabold tracking-tight mb-6">Enterprise-Grade Security</h2>
+        <p class="text-xl text-gray-300 font-light mb-8 leading-relaxed">
+          We understand that democracy relies on trust. VoteX is built from the ground up with a security-first architecture to ensure every vote is untampered.
+        </p>
+        <ul class="space-y-4">
+          <li class="flex items-start">
+            <svg class="w-6 h-6 text-primary mt-1 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="text-gray-300">Cryptographically secure session management preventing identity spoofing.</span>
+          </li>
+          <li class="flex items-start">
+            <svg class="w-6 h-6 text-primary mt-1 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="text-gray-300">Rigorous parameterized database queries guarding against SQL injections.</span>
+          </li>
+          <li class="flex items-start">
+            <svg class="w-6 h-6 text-primary mt-1 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="text-gray-300">Strict organizer-level authorization isolating election environments.</span>
+          </li>
+        </ul>
+      </div>
+      <div class="md:w-1/2 flex justify-center">
+        <div class="w-64 h-64 bg-gradient-to-br from-accent to-surface-container-low rounded-full flex items-center justify-center shadow-2xl shadow-accent/20 border-4 border-white/5">
+          <svg class="w-32 h-32 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Elections Section -->
+  <section id="elections" class="py-24 px-6 border-t border-white/5 bg-surface-container-low">
+    <div class="max-w-7xl mx-auto text-center">
+      <h2 class="text-4xl font-extrabold tracking-tight mb-6">Powerful Election Tools</h2>
+      <p class="text-xl text-gray-400 font-light mb-16 max-w-2xl mx-auto">
+        Everything you need to run a flawless election, packed into an elegant dashboard.
+      </p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-surface p-6 rounded-xl border border-white/5">
+          <h4 class="text-lg font-bold text-white mb-2">Real-time Metrics</h4>
+          <p class="text-sm text-gray-500">Monitor voter participation and system strength in real-time without refreshing.</p>
+        </div>
+        <div class="bg-surface p-6 rounded-xl border border-white/5">
+          <h4 class="text-lg font-bold text-white mb-2">Automated Tallying</h4>
+          <p class="text-sm text-gray-500">Say goodbye to manual counts. Results are calculated instantly upon election closure.</p>
+        </div>
+        <div class="bg-surface p-6 rounded-xl border border-white/5">
+          <h4 class="text-lg font-bold text-white mb-2">Dynamic Roles</h4>
+          <p class="text-sm text-gray-500">Easily add new leadership positions and candidate portfolios on the fly.</p>
+        </div>
+        <div class="bg-surface p-6 rounded-xl border border-white/5">
+          <h4 class="text-lg font-bold text-white mb-2">Issue Reporting</h4>
+          <p class="text-sm text-gray-500">Built-in moderation systems allow voters to report issues directly to organizers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-24 px-6 border-t border-white/5">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-4xl font-extrabold tracking-tight mb-6">About VoteX</h2>
+      <p class="text-lg text-gray-300 font-light leading-relaxed mb-8">
+        VoteX was engineered to bridge the gap between complex cryptographic voting systems and user-friendly design. 
+        Whether you are organizing a university student council election, corporate board voting, or a community poll, 
+        VoteX delivers a premium, secure, and transparent experience.
+      </p>
+      <a href="/join" class="inline-block px-8 py-3 bg-primary text-surface font-bold rounded-full hover:bg-yellow-400 transition-colors no-underline">Experience It Today</a>
+    </div>
+  </section>
+
+</div>
+<!-- END: Details Sections -->
+<!-- BEGIN: Footer -->
+<footer class="bg-surface-container-lowest border-t border-white/5 py-8" data-purpose="footer-simple">
+<div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-gray-500 text-sm">
+        © 2026 VoteX Imperative. All rights reserved.
+      </p>
+<div class="flex space-x-6 text-sm text-gray-400">
+<a class="hover:text-primary no-underline text-gray-400" href="#">Privacy Policy</a>
+<a class="hover:text-primary no-underline text-gray-400" href="#">Terms of Service</a>
+<a class="hover:text-primary no-underline text-gray-400" href="#">Contact</a>
+</div>
+</div>
+</footer>
+<!-- END: Footer -->
+</body></html>

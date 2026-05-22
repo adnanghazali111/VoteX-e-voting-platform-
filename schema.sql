@@ -1,8 +1,7 @@
 -- VoteX Database Schema (Room-Based Architecture)
+-- Note: Cloud databases manage their own schemas (e.g., 'defaultdb'). 
+-- Do not include CREATE DATABASE statements here.
 
-DROP DATABASE IF EXISTS votex;
-CREATE DATABASE votex;
-USE votex;
 
 -- Users table (Voters - Global Identity)
 CREATE TABLE IF NOT EXISTS users (

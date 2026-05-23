@@ -51,11 +51,29 @@ VoteX is a modern, secure, and intuitive online voting system designed to bridge
    DB_USER=root
    DB_PASSWORD=your_mysql_password
    DB_NAME=votex
+   DB_SSL=true
    SESSION_SECRET=your_super_secret_key
    
    # Optional: For Google Sign-In
    GOOGLE_CLIENT_ID=your_google_client_id
    GOOGLE_CLIENT_SECRET=your_google_client_secret
+   ```
+
+   For Vercel + Aiven, set these in **Vercel Project Settings → Environment Variables**:
+   ```env
+   DB_HOST=your-aiven-host.aivencloud.com
+   DB_PORT=your-aiven-port
+   DB_USER=avnadmin
+   DB_PASSWORD=your_aiven_password
+   DB_NAME=defaultdb
+   DB_SSL=true
+   SESSION_SECRET=generate_a_long_random_secret
+   ```
+
+   You can also use Aiven's MySQL URI as a single variable:
+   ```env
+   DATABASE_URL=mysql://avnadmin:your_aiven_password@your-aiven-host.aivencloud.com:your-aiven-port/defaultdb?ssl-mode=REQUIRED
+   SESSION_SECRET=generate_a_long_random_secret
    ```
 
 5. **Run the Application**

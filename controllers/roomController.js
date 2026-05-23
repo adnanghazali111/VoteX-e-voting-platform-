@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const { TERMINATION_MESSAGE, terminateRoomIfVoteCountExceedsStrength } = require('./electionGuard');
 
 const ensureRoomVoterPinColumn = async () => {
-    const [columns] = await db.query('SHOW COLUMNS FROM rooms LIKE "voter_pin"');
+    const [columns] = await db.query('SHOW COLUMNS FROM rooms LIKE ?', ['voter_pin']);
     if (columns.length === 0) {
         await db.query('ALTER TABLE rooms ADD COLUMN voter_pin VARCHAR(20) DEFAULT NULL');
     }
@@ -281,7 +281,7 @@ exports.addCandidate = async (req, res) => {
 exports.publishResults = async (req, res) => {
     const roomId = req.params.id;
     try {
-        await db.query('UPDATE rooms SET status = "published" WHERE id = ? AND admin_id = ?', [roomId, req.session.admin.id]);
+        await db.query('UPDATE rooms SET status = ? WHERE id = ? AND admin_id = ?', ['published', roomId, req.session.admin.id]);
         req.flash('success_msg', 'Results published! Everyone can now see the results.');
         res.redirect(`/admin/rooms/${roomId}`);
     } catch (err) {
@@ -295,8 +295,8 @@ exports.publishResults = async (req, res) => {
 exports.terminateRoom = async (req, res) => {
     const roomId = req.params.id;
     try {
-        const [result] = await db.query('UPDATE rooms SET status = "closed" WHERE id = ? AND admin_id = ? AND status = "active"', 
-            [roomId, req.session.admin.id]);
+        const [result] = await db.query('UPDATE rooms SET status = ? WHERE id = ? AND admin_id = ? AND status = ?',
+            ['closed', roomId, req.session.admin.id, 'active']);
 
         if (result.affectedRows === 0) {
             req.flash('error_msg', 'Only active election rooms can be terminated.');

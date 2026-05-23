@@ -79,11 +79,24 @@ CREATE TABLE IF NOT EXISTS votes (
     UNIQUE KEY unique_vote_per_position (user_id, room_id, position_id)
 );
 
+-- Reports table (Ballot issue reports from voters)
+CREATE TABLE IF NOT EXISTS reports (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    voter_id INT NOT NULL,
+    room_id INT NOT NULL,
+    issue_type VARCHAR(255),
+    message TEXT,
+    status ENUM('open', 'resolved') DEFAULT 'open',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (voter_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+);
+
 -- Default Super Admin
-INSERT INTO admins (username, email, password, role) VALUES 
+INSERT IGNORE INTO admins (username, email, password, role) VALUES 
 ('superadmin', 'admin@votex.com', NULL, 'superadmin');
 
 -- Default Test Voter
 -- College ID: COL12345, Voting PIN: 1234
-INSERT INTO users (voter_id, name, email, password, status) VALUES
+INSERT IGNORE INTO users (voter_id, name, email, password, status) VALUES
 ('COL12345', 'Test Voter', 'voter@votex.com', '$2a$10$3V8T2KD1tvuQH/fuEFD9bOW83rUN6oZ1Pss5eiKbB/PgkS.8FQR5S', 'approved');

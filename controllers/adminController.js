@@ -71,7 +71,7 @@ exports.resolveReport = async (req, res) => {
         const [rooms] = await db.query('SELECT r.id FROM rooms r JOIN reports rep ON r.id = rep.room_id WHERE rep.id = ? AND r.admin_id = ?', [reportId, req.session.admin.id]);
         if (rooms.length === 0) return res.status(403).send('Unauthorized');
 
-        await db.query('UPDATE reports SET status = "resolved" WHERE id = ?', [reportId]);
+        await db.query('UPDATE reports SET status = ? WHERE id = ?', ['resolved', reportId]);
         req.flash('success_msg', 'Report marked as resolved');
         
         if (roomId) {
@@ -100,7 +100,7 @@ exports.resetVote = async (req, res) => {
         await db.query('DELETE FROM votes WHERE user_id = ? AND room_id = ?', [voterId, roomId]);
         
         // Mark report as resolved
-        await db.query('UPDATE reports SET status = "resolved" WHERE id = ?', [reportId]);
+        await db.query('UPDATE reports SET status = ? WHERE id = ?', ['resolved', reportId]);
         
         req.flash('success_msg', 'Voter\'s votes have been deleted and report resolved. They can now vote again.');
         

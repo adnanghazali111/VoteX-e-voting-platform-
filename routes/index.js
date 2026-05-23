@@ -17,7 +17,7 @@ router.get('/join', async (req, res) => {
 
     if (code) {
         try {
-            const [columns] = await db.query('SHOW COLUMNS FROM rooms LIKE "voter_pin"');
+            const [columns] = await db.query('SHOW COLUMNS FROM rooms LIKE ?', ['voter_pin']);
             if (columns.length === 0) {
                 await db.query('ALTER TABLE rooms ADD COLUMN voter_pin VARCHAR(20) DEFAULT NULL');
             }

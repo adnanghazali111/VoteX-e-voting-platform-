@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const { TERMINATION_MESSAGE, terminateRoomIfVoteCountExceedsStrength } = require('./electionGuard');
 
 const ensureRoomVoterPinColumn = async () => {
-    const [columns] = await db.query('SHOW COLUMNS FROM rooms LIKE "voter_pin"');
+    const [columns] = await db.query('SHOW COLUMNS FROM rooms LIKE ?', ['voter_pin']);
     if (columns.length === 0) {
         await db.query('ALTER TABLE rooms ADD COLUMN voter_pin VARCHAR(20) DEFAULT NULL');
     }
@@ -72,19 +72,19 @@ exports.joinRoom = async (req, res) => {
         const googleUser = req.session.googleUser || null;
         const openVoterId = googleUser && googleUser.id ? buildGoogleVoterId(googleUser.id) : buildOpenVoterId(room.id, openVoterName);
         let [users] = googleUser && googleUser.email
-            ? await db.query('SELECT * FROM users WHERE (voter_id = ? OR email = ?) AND status = "approved" LIMIT 1', [openVoterId, googleUser.email])
-            : await db.query('SELECT * FROM users WHERE voter_id = ? AND status = "approved" LIMIT 1', [openVoterId]);
+            ? await db.query('SELECT * FROM users WHERE (voter_id = ? OR email = ?) AND status = ? LIMIT 1', [openVoterId, googleUser.email, 'approved'])
+            : await db.query('SELECT * FROM users WHERE voter_id = ? AND status = ? LIMIT 1', [openVoterId, 'approved']);
 
         if (users.length === 0) {
             const hashedPin = await bcrypt.hash(voting_pin, 10);
             const email = googleUser && googleUser.email ? googleUser.email : `${openVoterId.toLowerCase()}@votex.local`;
 
             await db.query(
-                'INSERT INTO users (voter_id, name, email, password, status) VALUES (?, ?, ?, ?, "approved")',
-                [openVoterId, openVoterName, email, hashedPin]
+                'INSERT INTO users (voter_id, name, email, password, status) VALUES (?, ?, ?, ?, ?)',
+                [openVoterId, openVoterName, email, hashedPin, 'approved']
             );
 
-            [users] = await db.query('SELECT * FROM users WHERE voter_id = ? AND status = "approved"', [openVoterId]);
+            [users] = await db.query('SELECT * FROM users WHERE voter_id = ? AND status = ?', [openVoterId, 'approved']);
         } else if (googleUser && googleUser.email) {
             await db.query('UPDATE users SET name = ?, email = ? WHERE id = ?', [openVoterName, googleUser.email, users[0].id]);
             [users] = await db.query('SELECT * FROM users WHERE id = ?', [users[0].id]);

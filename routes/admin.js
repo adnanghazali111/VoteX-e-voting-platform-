@@ -47,7 +47,7 @@ router.post('/login', async (req, res) => {
             const emailName = safeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'organizer';
             const email = `${emailName}-${Date.now()}@votex.local`;
             await db.query(
-                'INSERT INTO admins (username, email, password, role, status) VALUES (?, ?, "", \'organizer\', \'active\')',
+                'INSERT INTO admins (username, email, password, role, status) VALUES (?, ?, \'\', \'organizer\', \'active\')',
                 [safeName, email]
             );
             [admins] = await db.query('SELECT * FROM admins WHERE username = ? AND status = \'active\'', [safeName]);
@@ -124,7 +124,7 @@ router.get('/auth/google/callback', async (req, res) => {
 
         if (admins.length === 0) {
             await db.query(
-                'INSERT INTO admins (username, email, password, role, status) VALUES (?, ?, "", \'organizer\', \'active\')',
+                'INSERT INTO admins (username, email, password, role, status) VALUES (?, ?, \'\', \'organizer\', \'active\')',
                 [organizerName, organizerEmail]
             );
             [admins] = await db.query('SELECT * FROM admins WHERE email = ? LIMIT 1', [organizerEmail]);

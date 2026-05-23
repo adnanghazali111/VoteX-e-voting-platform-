@@ -102,7 +102,7 @@ exports.manageRoom = async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        req.flash('error_msg', 'Error loading room details');
+        req.flash('error_msg', 'Error loading room details: ' + (err.message || err));
         res.redirect('/admin/dashboard');
     }
 };

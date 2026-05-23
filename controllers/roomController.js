@@ -10,6 +10,22 @@ const ensureRoomVoterPinColumn = async () => {
     }
 };
 
+const ensureReportsTable = async () => {
+    await db.query(`
+        CREATE TABLE IF NOT EXISTS reports (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            voter_id INT NOT NULL,
+            room_id INT NOT NULL,
+            issue_type VARCHAR(255),
+            message TEXT,
+            status ENUM('open', 'resolved') DEFAULT 'open',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (voter_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+        )
+    `);
+};
+
 // Get all rooms for an admin
 exports.getDashboard = async (req, res) => {
     try {
@@ -57,6 +73,7 @@ exports.manageRoom = async (req, res) => {
     const roomId = req.params.id;
     try {
         await ensureRoomVoterPinColumn();
+        await ensureReportsTable();
         const [rooms] = await db.query('SELECT * FROM rooms WHERE id = ? AND admin_id = ?', [roomId, req.session.admin.id]);
         if (rooms.length === 0) return res.status(404).send('Room not found');
         const room = rooms[0];

@@ -12,6 +12,29 @@ const app = express();
 // Database connection
 const db = require('./config/db');
 
+// Auto-initialize reports table if it doesn't exist
+const ensureSchemaExists = async () => {
+    try {
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS reports (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                voter_id INT NOT NULL,
+                room_id INT NOT NULL,
+                issue_type VARCHAR(255),
+                message TEXT,
+                status ENUM('open', 'resolved') DEFAULT 'open',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (voter_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+            )
+        `);
+        console.log("Database schema check: reports table is ready.");
+    } catch (err) {
+        console.error("Database schema verification failed:", err);
+    }
+};
+ensureSchemaExists();
+
 // EJS Setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
